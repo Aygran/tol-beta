@@ -93,6 +93,7 @@ export default function CharacterSheet() {
         message: 'Character sheet saved successfully!'
       });
     } catch (error) {
+      console.error('Failed to save character sheet:', error);
       setNotification({
         type: 'error',
         message: 'Failed to save character sheet. Please try again.'

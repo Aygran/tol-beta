@@ -47,6 +47,7 @@ export default function Equipment() {
         message: 'Equipment saved successfully!'
       });
     } catch (error) {
+      console.error('Failed to save equipment:', error);
       setNotification({
         type: 'error',
         message: 'Failed to save equipment. Please try again.'

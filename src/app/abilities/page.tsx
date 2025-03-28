@@ -53,6 +53,7 @@ export default function Abilities() {
         message: 'Abilities saved successfully!'
       });
     } catch (error) {
+      console.error('Failed to save abilities:', error);
       setNotification({
         type: 'error',
         message: 'Failed to save abilities. Please try again.'
