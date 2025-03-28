@@ -6,7 +6,7 @@ export default function Home() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/Full Tree Stone.png"
+          src="/tol-beta/Full Tree Stone.png"
           alt="Tree of Life Background"
           fill
           className="object-cover"

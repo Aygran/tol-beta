@@ -36,7 +36,7 @@ export default function Navigation() {
           </div>
           <div className="flex items-center">
             <Image
-              src="/256px.png"
+              src="/tol-beta/256px.png"
               alt="Tree of Life Icon"
               width={32}
               height={32}
