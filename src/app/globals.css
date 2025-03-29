@@ -26,3 +26,49 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Input field styling */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  @apply bg-black text-white border border-gray-700 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+/* Placeholder styling */
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  @apply text-gray-400;
+}
+
+/* Disabled state */
+input:disabled,
+textarea:disabled,
+select:disabled {
+  @apply bg-gray-800 text-gray-400 cursor-not-allowed;
+}
+
+/* Table styling */
+table {
+  @apply w-full border-collapse;
+}
+
+th {
+  @apply bg-gray-800 text-white px-4 py-2 text-left;
+}
+
+td {
+  @apply border border-gray-700 px-4 py-2;
+}
+
+/* Button styling */
+button {
+  @apply bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors;
+}
+
+button:disabled {
+  @apply bg-gray-600 cursor-not-allowed;
+}
