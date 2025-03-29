@@ -19,7 +19,7 @@ export default function MyCharacters() {
 
     const loadCharacters = async () => {
       try {
-        const userCharacters = await firestoreService.getUserCharacterSheets(user.uid);
+        const userCharacters = await firestoreService.getCharacterSheets(user.uid);
         setCharacters(userCharacters);
       } catch (error) {
         setError('Failed to load characters');
@@ -83,7 +83,7 @@ export default function MyCharacters() {
               >
                 <div className="p-6">
                   <h3 className="text-xl font-semibold text-white mb-2">
-                    {character.name}
+                    {character.characterName}
                   </h3>
                   <p className="text-gray-300 text-sm mb-4">
                     Last updated: {new Date(character.updatedAt).toLocaleDateString()}
@@ -96,7 +96,7 @@ export default function MyCharacters() {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDeleteCharacter(character.id)}
+                      onClick={() => handleDeleteCharacter(character.id!)}
                       className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors duration-200"
                     >
                       Delete

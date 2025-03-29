@@ -83,6 +83,14 @@ export default function Equipment() {
         return current.updatedAt > latest.updatedAt ? current : latest;
       });
 
+      if (!mostRecentCharacter.id) {
+        setNotification({
+          type: 'error',
+          message: 'Character ID not found. Please try again.'
+        });
+        return;
+      }
+
       await firestoreService.updateCharacterSheet(mostRecentCharacter.id, {
         equipment,
       });
@@ -104,6 +112,7 @@ export default function Equipment() {
 
   const handleAddEquipment = () => {
     const newEquipment: Equipment = {
+      id: `temp-${Date.now()}`,
       name: '',
       type: '',
       quantity: '',

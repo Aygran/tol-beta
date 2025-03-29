@@ -57,7 +57,7 @@ export default function CharacterSheet() {
         setValues(character.values);
         setAbilities(character.abilities);
         setEquipment(character.equipment);
-        setCharacterName(character.name);
+        setCharacterName(character.characterName);
       }
     } else {
       // Reset form when no character is selected
@@ -84,7 +84,9 @@ export default function CharacterSheet() {
         const mostRecent = userCharacters.reduce((latest, current) => 
           current.updatedAt > latest.updatedAt ? current : latest
         );
-        setSelectedCharacterId(mostRecent.id);
+        if (mostRecent.id) {
+          setSelectedCharacterId(mostRecent.id);
+        }
       }
     } catch (error) {
       console.error('Failed to load characters:', error);
@@ -140,7 +142,13 @@ export default function CharacterSheet() {
       if (selectedCharacterId) {
         await firestoreService.updateCharacterSheet(selectedCharacterId, characterData);
       } else {
-        await firestoreService.createCharacterSheet(user.uid, characterData);
+        await firestoreService.createCharacterSheet({
+          userId: user.uid,
+          characterName,
+          values,
+          abilities,
+          equipment,
+        });
       }
 
       setNotification({
@@ -330,7 +338,7 @@ export default function CharacterSheet() {
               <option value="">New Character</option>
               {characters.map((character) => (
                 <option key={character.id} value={character.id}>
-                  {character.name}
+                  {character.characterName}
                 </option>
               ))}
             </select>
@@ -657,7 +665,7 @@ export default function CharacterSheet() {
                         <span className="px-2 py-1 bg-blue-900 text-blue-200 rounded text-sm">
                           Tier {ability.tier}
                         </span>
-                        {ability.focus && (
+                        {ability.isFocus && (
                           <span className="px-2 py-1 bg-purple-900 text-purple-200 rounded text-sm">
                             Focus
                           </span>
