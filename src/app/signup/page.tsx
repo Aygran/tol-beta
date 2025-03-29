@@ -31,14 +31,12 @@ export default function SignUp() {
 
     try {
       const userCredential = await signUp(email, password);
-      const user = userCredential.user;
-
       // Store newsletter preference in Firestore if opted in
       if (newsletterOptIn) {
-        await firestoreService.subscribeToNewsletter(user.uid, email);
+        await firestoreService.subscribeToNewsletter(userCredential.user.uid, email);
       }
-
       setSuccess('Account created successfully! Please check your email to verify your account.');
+      router.push('/character-sheet');
     } catch (error: any) {
       setError(error.message || 'Failed to create an account. Please try again.');
       console.error('Signup error:', error);
