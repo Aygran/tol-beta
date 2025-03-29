@@ -35,6 +35,10 @@ jobs:
           
           npm run build
           echo "Build completed"
+          
+          # Debug: List contents of out directory
+          echo "Contents of out directory:"
+          ls -la out
         env:
           NODE_ENV: production
 
@@ -42,4 +46,6 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: out
-          branch: gh-pages 
+          branch: gh-pages
+          clean: true
+          commit-message: "Deploy to GitHub Pages" 
