@@ -32,7 +32,7 @@ export default function Equipment() {
     if (!user) return;
     try {
       setLoading(true);
-      const characters = await firestoreService.getUserCharacterSheets(user.uid);
+      const characters = await firestoreService.getCharacterSheets(user.uid);
       // Get equipment from the most recently updated character
       const mostRecentCharacter = characters.reduce((latest, current) => {
         return current.updatedAt > latest.updatedAt ? current : latest;
@@ -69,7 +69,7 @@ export default function Equipment() {
 
     try {
       setLoading(true);
-      const characters = await firestoreService.getUserCharacterSheets(user.uid);
+      const characters = await firestoreService.getCharacterSheets(user.uid);
       if (characters.length === 0) {
         setNotification({
           type: 'error',

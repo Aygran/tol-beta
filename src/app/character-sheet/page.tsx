@@ -72,7 +72,7 @@ export default function CharacterSheet() {
     if (!user) return;
     try {
       setLoading(true);
-      const userCharacters = await firestoreService.getUserCharacterSheets(user.uid);
+      const userCharacters = await firestoreService.getCharacterSheets(user.uid);
       setCharacters(userCharacters);
 
       // Try to load the last selected character
