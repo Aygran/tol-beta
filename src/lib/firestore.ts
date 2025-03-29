@@ -8,12 +8,19 @@ import {
   query,
   where,
   getDocs,
-  Timestamp
+  Timestamp,
+  addDoc,
+  orderBy,
+  limit,
+  CollectionReference,
+  DocumentReference,
+  DocumentData
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { User } from 'firebase/auth';
 
 export interface Ability {
+  id: string;
   name: string;
   tier: string;
   ap: string;
@@ -22,12 +29,13 @@ export interface Ability {
   duration: string;
   damage: string;
   spellPassRating: string;
-  focus: boolean;
   description: string;
   upgrades: string;
+  isFocus: boolean;
 }
 
 export interface Equipment {
+  id: string;
   name: string;
   type: string;
   quantity: string;
@@ -38,10 +46,10 @@ export interface Equipment {
 }
 
 export interface CharacterSheet {
-  id: string;
+  id?: string;
   userId: string;
-  name: string;
-  values: { [key: string]: string };
+  characterName: string;
+  values: Record<string, string>;
   abilities: Ability[];
   equipment: Equipment[];
   createdAt: Date;
@@ -56,110 +64,138 @@ export interface NewsletterSubscription {
 }
 
 class FirestoreService {
-  private characterSheetsCollection = collection(db, 'characterSheets');
-  private newsletterCollection = collection(db, 'newsletterSubscriptions');
+  private characterSheetsCollection: CollectionReference<DocumentData>;
+  private newsletterCollection: CollectionReference<DocumentData>;
+
+  constructor() {
+    if (!db) {
+      throw new Error('Firestore is not initialized');
+    }
+    this.characterSheetsCollection = collection(db, 'characterSheets');
+    this.newsletterCollection = collection(db, 'newsletterSubscriptions');
+  }
 
   // Character Sheet Methods
-  async createCharacterSheet(userId: string, data: Omit<CharacterSheet, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<CharacterSheet> {
-    const docRef = doc(this.characterSheetsCollection);
+  async createCharacterSheet(sheet: Omit<CharacterSheet, 'id' | 'createdAt' | 'updatedAt'>): Promise<CharacterSheet> {
+    if (!db) throw new Error('Firestore is not initialized');
+    
     const now = new Date();
-    const characterSheet: CharacterSheet = {
+    const docRef = await addDoc(this.characterSheetsCollection, {
+      ...sheet,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    return {
       id: docRef.id,
-      userId,
-      ...data,
+      ...sheet,
       createdAt: now,
       updatedAt: now,
     };
+  }
 
-    await setDoc(docRef, {
-      ...characterSheet,
-      createdAt: Timestamp.fromDate(now),
-      updatedAt: Timestamp.fromDate(now),
-    });
+  async getCharacterSheets(userId: string): Promise<CharacterSheet[]> {
+    if (!db) throw new Error('Firestore is not initialized');
+    
+    const q = query(
+      this.characterSheetsCollection,
+      where('userId', '==', userId),
+      orderBy('updatedAt', 'desc')
+    );
 
-    return characterSheet;
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate(),
+      updatedAt: doc.data().updatedAt?.toDate(),
+    })) as CharacterSheet[];
   }
 
   async getCharacterSheet(id: string): Promise<CharacterSheet | null> {
+    if (!db) throw new Error('Firestore is not initialized');
+    
     const docRef = doc(this.characterSheetsCollection, id);
     const docSnap = await getDoc(docRef);
-
-    if (!docSnap.exists()) {
-      return null;
-    }
-
+    
+    if (!docSnap.exists()) return null;
+    
     const data = docSnap.data();
     return {
       id: docSnap.id,
       ...data,
-      createdAt: (data.createdAt as Timestamp).toDate(),
-      updatedAt: (data.updatedAt as Timestamp).toDate(),
+      createdAt: data.createdAt?.toDate(),
+      updatedAt: data.updatedAt?.toDate(),
     } as CharacterSheet;
   }
 
-  async getUserCharacterSheets(userId: string): Promise<CharacterSheet[]> {
-    const q = query(this.characterSheetsCollection, where('userId', '==', userId));
-    const querySnapshot = await getDocs(q);
-
-    return querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: (doc.data().createdAt as Timestamp).toDate(),
-      updatedAt: (doc.data().updatedAt as Timestamp).toDate(),
-    })) as CharacterSheet[];
-  }
-
-  async updateCharacterSheet(id: string, data: Partial<CharacterSheet>): Promise<void> {
+  async updateCharacterSheet(id: string, updates: Partial<CharacterSheet>): Promise<void> {
+    if (!db) throw new Error('Firestore is not initialized');
+    
     const docRef = doc(this.characterSheetsCollection, id);
     await updateDoc(docRef, {
-      ...data,
-      updatedAt: Timestamp.fromDate(new Date()),
+      ...updates,
+      updatedAt: new Date(),
     });
   }
 
   async deleteCharacterSheet(id: string): Promise<void> {
+    if (!db) throw new Error('Firestore is not initialized');
+    
     const docRef = doc(this.characterSheetsCollection, id);
     await deleteDoc(docRef);
   }
 
-  // Newsletter Subscription Methods
+  // Newsletter Methods
   async subscribeToNewsletter(userId: string, email: string): Promise<void> {
-    const docRef = doc(this.newsletterCollection, userId);
-    const subscription = {
+    if (!db) throw new Error('Firestore is not initialized');
+    
+    const subscription: NewsletterSubscription = {
       userId,
       email,
       subscribedAt: new Date(),
       isActive: true,
     };
 
-    await setDoc(docRef, {
-      ...subscription,
-      subscribedAt: Timestamp.fromDate(subscription.subscribedAt),
-    });
+    await addDoc(this.newsletterCollection, subscription);
   }
 
-  async unsubscribeFromNewsletter(userId: string): Promise<void> {
-    const docRef = doc(this.newsletterCollection, userId);
-    await updateDoc(docRef, {
-      isActive: false,
-    });
-  }
+  async getNewsletterSubscription(userId: string): Promise<NewsletterSubscription | null> {
+    if (!db) throw new Error('Firestore is not initialized');
+    
+    const q = query(
+      this.newsletterCollection,
+      where('userId', '==', userId),
+      limit(1)
+    );
 
-  async getNewsletterSubscription(userId: string): Promise<{ userId: string; email: string; subscribedAt: Date; isActive: boolean; } | null> {
-    const docRef = doc(this.newsletterCollection, userId);
-    const docSnap = await getDoc(docRef);
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) return null;
 
-    if (!docSnap.exists()) {
-      return null;
-    }
-
-    const data = docSnap.data();
+    const doc = querySnapshot.docs[0];
+    const data = doc.data();
     return {
       userId: data.userId,
       email: data.email,
-      subscribedAt: (data.subscribedAt as Timestamp).toDate(),
+      subscribedAt: data.subscribedAt?.toDate(),
       isActive: data.isActive,
     };
+  }
+
+  async unsubscribeFromNewsletter(userId: string): Promise<void> {
+    if (!db) throw new Error('Firestore is not initialized');
+    
+    const q = query(
+      this.newsletterCollection,
+      where('userId', '==', userId),
+      limit(1)
+    );
+
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const docRef = doc(this.newsletterCollection, querySnapshot.docs[0].id);
+      await updateDoc(docRef, { isActive: false });
+    }
   }
 }
 
