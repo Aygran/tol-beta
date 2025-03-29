@@ -33,6 +33,9 @@ jobs:
           echo "NEXT_PUBLIC_FIREBASE_APP_ID=dummy" >> .env
           echo "NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=dummy" >> .env
           
+          # Temporarily remove out directory from .gitignore
+          sed -i '/\/out\//d' .gitignore
+          
           npm run build
           echo "Build completed"
           
