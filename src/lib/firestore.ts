@@ -69,7 +69,7 @@ class FirestoreService {
 
   constructor() {
     if (typeof window === 'undefined') {
-      // During server-side rendering, create dummy collections
+      // During static export, create dummy collections
       this.characterSheetsCollection = {} as CollectionReference<DocumentData>;
       this.newsletterCollection = {} as CollectionReference<DocumentData>;
       return;
@@ -85,7 +85,7 @@ class FirestoreService {
   // Character Sheet Methods
   async createCharacterSheet(sheet: Omit<CharacterSheet, 'id' | 'createdAt' | 'updatedAt'>): Promise<CharacterSheet> {
     if (typeof window === 'undefined') {
-      // Return dummy data during server-side rendering
+      // Return dummy data during static export
       return {
         id: 'dummy-id',
         ...sheet,
@@ -113,7 +113,7 @@ class FirestoreService {
 
   async getCharacterSheets(userId: string): Promise<CharacterSheet[]> {
     if (typeof window === 'undefined') {
-      // Return empty array during server-side rendering
+      // Return empty array during static export
       return [];
     }
 
@@ -136,7 +136,7 @@ class FirestoreService {
 
   async getCharacterSheet(id: string): Promise<CharacterSheet | null> {
     if (typeof window === 'undefined') {
-      // Return null during server-side rendering
+      // Return null during static export
       return null;
     }
 
@@ -158,7 +158,7 @@ class FirestoreService {
 
   async updateCharacterSheet(id: string, updates: Partial<CharacterSheet>): Promise<void> {
     if (typeof window === 'undefined') {
-      // Do nothing during server-side rendering
+      // Do nothing during static export
       return;
     }
 
@@ -173,7 +173,7 @@ class FirestoreService {
 
   async deleteCharacterSheet(id: string): Promise<void> {
     if (typeof window === 'undefined') {
-      // Do nothing during server-side rendering
+      // Do nothing during static export
       return;
     }
 
@@ -186,7 +186,7 @@ class FirestoreService {
   // Newsletter Methods
   async subscribeToNewsletter(userId: string, email: string): Promise<void> {
     if (typeof window === 'undefined') {
-      // Do nothing during server-side rendering
+      // Do nothing during static export
       return;
     }
 
@@ -204,7 +204,7 @@ class FirestoreService {
 
   async getNewsletterSubscription(userId: string): Promise<NewsletterSubscription | null> {
     if (typeof window === 'undefined') {
-      // Return null during server-side rendering
+      // Return null during static export
       return null;
     }
 
@@ -231,7 +231,7 @@ class FirestoreService {
 
   async unsubscribeFromNewsletter(userId: string): Promise<void> {
     if (typeof window === 'undefined') {
-      // Do nothing during server-side rendering
+      // Do nothing during static export
       return;
     }
 
