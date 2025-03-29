@@ -68,6 +68,13 @@ class FirestoreService {
   private newsletterCollection: CollectionReference<DocumentData>;
 
   constructor() {
+    if (typeof window === 'undefined') {
+      // During server-side rendering, create dummy collections
+      this.characterSheetsCollection = {} as CollectionReference<DocumentData>;
+      this.newsletterCollection = {} as CollectionReference<DocumentData>;
+      return;
+    }
+
     if (!db) {
       throw new Error('Firestore is not initialized');
     }
@@ -77,6 +84,16 @@ class FirestoreService {
 
   // Character Sheet Methods
   async createCharacterSheet(sheet: Omit<CharacterSheet, 'id' | 'createdAt' | 'updatedAt'>): Promise<CharacterSheet> {
+    if (typeof window === 'undefined') {
+      // Return dummy data during server-side rendering
+      return {
+        id: 'dummy-id',
+        ...sheet,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+    }
+
     if (!db) throw new Error('Firestore is not initialized');
     
     const now = new Date();
@@ -95,6 +112,11 @@ class FirestoreService {
   }
 
   async getCharacterSheets(userId: string): Promise<CharacterSheet[]> {
+    if (typeof window === 'undefined') {
+      // Return empty array during server-side rendering
+      return [];
+    }
+
     if (!db) throw new Error('Firestore is not initialized');
     
     const q = query(
@@ -113,6 +135,11 @@ class FirestoreService {
   }
 
   async getCharacterSheet(id: string): Promise<CharacterSheet | null> {
+    if (typeof window === 'undefined') {
+      // Return null during server-side rendering
+      return null;
+    }
+
     if (!db) throw new Error('Firestore is not initialized');
     
     const docRef = doc(this.characterSheetsCollection, id);
@@ -130,6 +157,11 @@ class FirestoreService {
   }
 
   async updateCharacterSheet(id: string, updates: Partial<CharacterSheet>): Promise<void> {
+    if (typeof window === 'undefined') {
+      // Do nothing during server-side rendering
+      return;
+    }
+
     if (!db) throw new Error('Firestore is not initialized');
     
     const docRef = doc(this.characterSheetsCollection, id);
@@ -140,6 +172,11 @@ class FirestoreService {
   }
 
   async deleteCharacterSheet(id: string): Promise<void> {
+    if (typeof window === 'undefined') {
+      // Do nothing during server-side rendering
+      return;
+    }
+
     if (!db) throw new Error('Firestore is not initialized');
     
     const docRef = doc(this.characterSheetsCollection, id);
@@ -148,6 +185,11 @@ class FirestoreService {
 
   // Newsletter Methods
   async subscribeToNewsletter(userId: string, email: string): Promise<void> {
+    if (typeof window === 'undefined') {
+      // Do nothing during server-side rendering
+      return;
+    }
+
     if (!db) throw new Error('Firestore is not initialized');
     
     const subscription: NewsletterSubscription = {
@@ -161,6 +203,11 @@ class FirestoreService {
   }
 
   async getNewsletterSubscription(userId: string): Promise<NewsletterSubscription | null> {
+    if (typeof window === 'undefined') {
+      // Return null during server-side rendering
+      return null;
+    }
+
     if (!db) throw new Error('Firestore is not initialized');
     
     const q = query(
@@ -183,6 +230,11 @@ class FirestoreService {
   }
 
   async unsubscribeFromNewsletter(userId: string): Promise<void> {
+    if (typeof window === 'undefined') {
+      // Do nothing during server-side rendering
+      return;
+    }
+
     if (!db) throw new Error('Firestore is not initialized');
     
     const q = query(
