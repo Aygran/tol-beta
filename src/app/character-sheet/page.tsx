@@ -133,7 +133,7 @@ export default function CharacterSheet() {
     try {
       setLoading(true);
       const characterData = {
-        name: characterName,
+        characterName,
         values,
         abilities,
         equipment,
@@ -141,21 +141,27 @@ export default function CharacterSheet() {
 
       if (selectedCharacterId) {
         await firestoreService.updateCharacterSheet(selectedCharacterId, characterData);
+        setNotification({
+          type: 'success',
+          message: 'Character updated successfully!'
+        });
       } else {
-        await firestoreService.createCharacterSheet({
+        const newCharacter = await firestoreService.createCharacterSheet({
           userId: user.uid,
           characterName,
           values,
           abilities,
           equipment,
         });
+        if (newCharacter.id) {
+          setSelectedCharacterId(newCharacter.id);
+        }
+        setNotification({
+          type: 'success',
+          message: 'Character created successfully!'
+        });
       }
-
-      setNotification({
-        type: 'success',
-        message: 'Character saved successfully!'
-      });
-      await loadCharacters();
+      await loadCharacters(); // Reload the characters list
     } catch (error) {
       console.error('Failed to save character:', error);
       setNotification({

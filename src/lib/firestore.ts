@@ -96,19 +96,28 @@ class FirestoreService {
 
     if (!db) throw new Error('Firestore is not initialized');
     
+    console.log('Creating character sheet:', sheet);
     const now = new Date();
-    const docRef = await addDoc(this.characterSheetsCollection, {
-      ...sheet,
-      createdAt: now,
-      updatedAt: now,
-    });
+    try {
+      const docRef = await addDoc(this.characterSheetsCollection, {
+        ...sheet,
+        createdAt: now,
+        updatedAt: now,
+      });
+      console.log('Created character sheet with ID:', docRef.id);
 
-    return {
-      id: docRef.id,
-      ...sheet,
-      createdAt: now,
-      updatedAt: now,
-    };
+      const newSheet = {
+        id: docRef.id,
+        ...sheet,
+        createdAt: now,
+        updatedAt: now,
+      };
+      console.log('Returning new character sheet:', newSheet);
+      return newSheet;
+    } catch (error) {
+      console.error('Error creating character sheet:', error);
+      throw error;
+    }
   }
 
   async getCharacterSheets(userId: string): Promise<CharacterSheet[]> {
@@ -119,19 +128,28 @@ class FirestoreService {
 
     if (!db) throw new Error('Firestore is not initialized');
     
+    console.log('Fetching character sheets for user:', userId);
     const q = query(
       this.characterSheetsCollection,
       where('userId', '==', userId),
       orderBy('updatedAt', 'desc')
     );
 
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate(),
-      updatedAt: doc.data().updatedAt?.toDate(),
-    })) as CharacterSheet[];
+    try {
+      const querySnapshot = await getDocs(q);
+      console.log('Found character sheets:', querySnapshot.size);
+      const sheets = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate(),
+        updatedAt: doc.data().updatedAt?.toDate(),
+      })) as CharacterSheet[];
+      console.log('Processed character sheets:', sheets);
+      return sheets;
+    } catch (error) {
+      console.error('Error fetching character sheets:', error);
+      throw error;
+    }
   }
 
   async getCharacterSheet(id: string): Promise<CharacterSheet | null> {
